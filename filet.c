@@ -154,10 +154,16 @@ read_dir(
     const char *path,
     struct direlement **ents,
     size_t *ents_size,
+    DIR **last_dir,
     bool show_hidden)
 {
     size_t n = 0;
-    DIR *dir = opendir(path);
+    DIR *dir;
+    if (*last_dir) {
+      closedir(*last_dir);
+    }
+    dir = opendir(path);
+    *last_dir = dir;
     if (dir) {
         struct dirent *ent;
         while ((ent = readdir(dir))) {
@@ -207,7 +213,6 @@ read_dir(
 
             ++n;
         }
-        closedir(dir);
         qsort(*ents, n, sizeof(**ents), direlemcmp);
     }
 
@@ -356,12 +361,14 @@ main(int argc, char **argv)
     bool show_hidden = false;
     bool fetch_dir   = true;
     size_t sel       = 0;
+    DIR *last_dir    = 0;
     size_t n;
 
     for (;;) {
         if (fetch_dir) {
             fetch_dir = false;
-            n         = read_dir(path, &ents, &ents_size, show_hidden);
+            n         = read_dir(path, &ents, &ents_size, &last_dir,
+                                 show_hidden);
         }
 
         redraw(ents, n, sel, path, user, hostname);
