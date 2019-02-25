@@ -359,7 +359,7 @@ main(int argc, char **argv)
     bool show_hidden = false;
     bool fetch_dir   = true;
     size_t sel       = 0;
-    DIR *last_dir    = 0;
+    DIR *last_dir    = NULL;
     size_t n;
 
     for (;;) {
