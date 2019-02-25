@@ -170,7 +170,6 @@ read_dir(
             const char *name = ent->d_name;
             int fd           = dirfd(dir);
             struct stat sb;
-            struct direlement *cur;
 
             if (name[0] == '.' &&
                 (name[1] == '\0' || (name[1] == '.' && name[2] == '\0'))) {
@@ -196,18 +195,17 @@ read_dir(
                 *ents = tmp;
             }
 
-            cur = &(*ents)[n];
-            cur->d_name = ent->d_name;
+            (*ents)[n].d_name = ent->d_name;
 
             if (S_ISDIR(sb.st_mode)) {
-                cur->type = TYPE_DIR;
+                (*ents)[n].type = TYPE_DIR;
             } else if (S_ISLNK(sb.st_mode)) {
-                cur->type = TYPE_SYML;
+                (*ents)[n].type = TYPE_SYML;
             } else {
                 if (sb.st_mode & S_IXUSR) {
-                    cur->type = TYPE_EXEC;
+                    (*ents)[n].type = TYPE_EXEC;
                 } else {
-                    cur->type = TYPE_NORM;
+                    (*ents)[n].type = TYPE_NORM;
                 }
             }
 
