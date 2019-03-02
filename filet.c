@@ -433,25 +433,26 @@ main(int argc, char **argv)
 
     for (;;) {
         if (fetch_dir) {
-            fetch_dir = false;
-            sel       = 0;
-            y         = 0;
-            n         = read_dir(path, &ents, &ents_size, show_hidden);
-            redraw(ents, user_and_hostname, path, n, sel, 0);
+            fetch_dir    = false;
+            sel          = 0;
+            y            = 0;
+            n            = read_dir(path, &ents, &ents_size, show_hidden);
+            needs_redraw = true;
         }
 
         if (needs_redraw) {
             needs_redraw       = false;
             size_t scroll_size = g_row - 3;
-            // Is there is a better name for this?
+
             int empty_space = -(n - (sel - y + scroll_size));
             if (y > scroll_size) {
                 y = scroll_size;
-            } else if (empty_space > 0) {
+            } else if (empty_space > 0 && n > scroll_size) {
                 y += 1 + empty_space;
             }
             redraw(ents, user_and_hostname, path, n, sel, sel - y);
-			// Move cursor to selection
+
+            // Move cursor to selection
             printf("\033[%zuH", y + 3);
         }
 
