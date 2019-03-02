@@ -345,9 +345,6 @@ redraw(
             printf("\r");
         }
     }
-
-    // move cursor to selection
-    printf("\033[3H");
 }
 
 int
@@ -454,7 +451,7 @@ main(int argc, char **argv)
             }
             redraw(ents, user_and_hostname, path, n, sel, sel - y);
 
-            // Move cursor to selection
+            // move cursor to selection
             printf("\033[%zuH", y + 3);
         }
 
