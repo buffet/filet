@@ -329,10 +329,12 @@ redraw(
         "%s"            // print username@hostname
         "\033[34;1m%s"  // print path
         " \033[0m[%zu]" // number of entries
+        "\033[3;%dr"    // limit scrolling to scrolling area
         "\r\n",         // enter scrolling region
         user_and_hostname,
         path,
-        n);
+        n,
+        g_row);
 
     if (n == 0) {
         printf("\n\033[31;7mdirectory empty\033[27m");
