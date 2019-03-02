@@ -40,7 +40,7 @@ struct direlement {
 static struct termios g_old_termios;
 static int g_row;
 static int g_col;
-static bool needs_redraw;
+static bool g_needs_redraw;
 
 /**
  * Deletes a file. Can be passed to nftw
@@ -113,7 +113,7 @@ handle_winch(int sig)
 {
     signal(sig, SIG_IGN);
     get_term_size();
-    needs_redraw = true;
+    g_needs_redraw = true;
     signal(sig, handle_winch);
 }
 
@@ -435,15 +435,15 @@ main(int argc, char **argv)
 
     for (;;) {
         if (fetch_dir) {
-            fetch_dir    = false;
-            sel          = 0;
-            y            = 0;
-            n            = read_dir(path, &ents, &ents_size, show_hidden);
-            needs_redraw = true;
+            fetch_dir      = false;
+            sel            = 0;
+            y              = 0;
+            n              = read_dir(path, &ents, &ents_size, show_hidden);
+            g_needs_redraw = true;
         }
 
-        if (needs_redraw) {
-            needs_redraw       = false;
+        if (g_needs_redraw) {
+            g_needs_redraw     = false;
             size_t scroll_size = g_row - 3;
 
             int empty_space = -(n - (sel - y + scroll_size));
