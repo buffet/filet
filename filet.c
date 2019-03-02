@@ -449,8 +449,8 @@ main(int argc, char **argv)
             int empty_space = -(n - (sel - y + scroll_size));
             if (y > scroll_size) {
                 y = scroll_size;
-            } else if (empty_space > 0 && n > scroll_size) {
-                y += 1 + empty_space;
+            } else if (empty_space > 0) {
+                y = n >= scroll_size ? y + empty_space + 1 : sel;
             }
             redraw(ents, user_and_hostname, path, n, sel, sel - y);
 
