@@ -552,6 +552,7 @@ main(int argc, char **argv)
                 sel = 0;
                 y   = 0;
                 redraw(ents, user_and_hostname, path, n, sel, 0);
+                printf("\033[3H", g_row);
             }
             break;
         case 'G':
