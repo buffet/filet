@@ -43,8 +43,8 @@ static struct termios g_old_termios;
 static int g_row;
 static int g_col;
 static bool g_needs_redraw;
-char * g_path;
-char * g_sel_name;
+static char * g_path;
+static char * g_sel_name;
 
 /**
  * Deletes a file. Can be passed to nftw
