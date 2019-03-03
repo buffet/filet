@@ -43,6 +43,8 @@ static struct termios g_old_termios;
 static int g_row;
 static int g_col;
 static bool g_needs_redraw;
+char * g_path;
+char * g_sel_name;
 
 /**
  * Deletes a file. Can be passed to nftw
@@ -119,6 +121,21 @@ handle_winch(int sig)
     signal(sig, handle_winch);
 }
 
+static void
+save_session(char * path, char * sel_name)
+{
+    FILE *f = fopen("/tmp/filet_dir", "w");
+    if (f) {
+        fprintf(f, "%s\n", path);
+    }
+    fclose(f);
+    f = fopen("/tmp/filet_sel", "w");
+    if (f) {
+        fprintf(f, "%s/%s\n", path, sel_name);
+    }
+    fclose(f);
+}
+
 /**
  * Resets the terminal to its prior state
  */
@@ -138,6 +155,21 @@ restore_terminal(void)
 }
 
 /**
+ * Saves old terminal configuration to reset on SIGINT or SIGTERM
+ * restore_terminal will use this to restore the settings.
+ */
+static bool 
+save_terminal()
+{
+    if (tcgetattr(STDIN_FILENO, &g_old_termios) < 0) {
+        perror("tcgetattr");
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * Sets up the terminal for TUI use (read every char, differentiate \r and \n,
  * don't echo, hide the cursor, fix a scroll region, switch to a second screen)
  */
@@ -145,11 +177,6 @@ static bool
 setup_terminal(void)
 {
     setvbuf(stdout, NULL, _IOFBF, 0);
-
-    if (tcgetattr(STDIN_FILENO, &g_old_termios) < 0) {
-        perror("tcgetattr");
-        return false;
-    }
 
     struct termios raw = g_old_termios;
     raw.c_oflag &= ~OPOST;
@@ -386,6 +413,17 @@ getkey(void)
     return c;
 }
 
+/**
+ * Used for SIGINT and SIGTERM to restore the terminal
+ */
+static void
+handle_exit(int sig)
+{
+    restore_terminal();
+    save_session(g_path, g_sel_name);
+    exit(EXIT_SUCCESS);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -462,6 +500,24 @@ main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
+    if (!save_terminal()) {
+        perror("save_terminal");
+        exit(EXIT_FAILURE);
+    }
+
+    g_path = path;
+    g_sel_name = path;
+
+    if (signal(SIGINT, handle_exit) == SIG_ERR) {
+        perror("signal");
+        exit(EXIT_FAILURE);
+    }
+
+    if (signal(SIGTERM, handle_exit) == SIG_ERR) {
+        perror("signal");
+        exit(EXIT_FAILURE);
+    }
+
     if (!setup_terminal()) {
         exit(EXIT_FAILURE);
     }
@@ -506,6 +562,8 @@ main(int argc, char **argv)
             n              = read_dir(path, &ents, &ents_size, show_hidden);
             g_needs_redraw = true;
         }
+
+        g_sel_name = ents[sel].name;
 
         if (g_needs_redraw) {
             g_needs_redraw     = false;
@@ -564,14 +622,7 @@ main(int argc, char **argv)
             break;
         }
         case 'q': {
-            FILE *f = fopen("/tmp/filet_dir", "w");
-            if (f) {
-                fprintf(f, "%s\n", path);
-            }
-            f = fopen("/tmp/filet_sel", "w");
-            if (f) {
-                fprintf(f, "%s/%s\n", path, ents[sel].name);
-            }
+            save_session(path, ents[sel].name);
             exit(EXIT_SUCCESS);
             break;
         }
