@@ -121,6 +121,10 @@ handle_winch(int sig)
     signal(sig, handle_winch);
 }
 
+/**
+ * Saves the current session (current path and selected file)
+ * to /tmp/filet_dir and /tmp/filet_sel
+ */
 static void
 save_session(char * path, char * sel_name)
 {
