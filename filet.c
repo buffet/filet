@@ -519,7 +519,6 @@ main(int argc, char **argv)
     }
 
     if (!setup_terminal()) {
-        perror("setup_terminal");
         exit(EXIT_FAILURE);
     }
 
