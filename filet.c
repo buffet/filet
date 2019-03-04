@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <signal.h>
 
 #include <dirent.h>
 #include <fcntl.h>
@@ -43,8 +44,7 @@ static struct termios g_old_termios;
 static int g_row;
 static int g_col;
 static bool g_needs_redraw;
-static char * g_path;
-static char * g_sel_name;
+static volatile sig_atomic_t g_quit;
 
 /**
  * Deletes a file. Can be passed to nftw
@@ -418,14 +418,12 @@ getkey(void)
 }
 
 /**
- * Used for SIGINT and SIGTERM to restore the terminal
+ * Used for SIGINT and SIGTERM to pass the exit signal to main()
  */
 static void
 handle_exit(int sig)
 {
-    restore_terminal();
-    save_session(g_path, g_sel_name);
-    exit(EXIT_SUCCESS);
+    g_quit = 1;
 }
 
 int
@@ -499,8 +497,19 @@ main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    if (signal(SIGWINCH, handle_winch) == SIG_ERR) {
-        perror("signal");
+    struct sigaction sa_winch = {.sa_handler = handle_winch};
+    if (sigaction(SIGWINCH, &sa_winch, NULL) < 0) {
+        perror("sigaction WINCH");
+        exit(EXIT_FAILURE);
+    }
+
+    struct sigaction sa_exit = {.sa_handler = handle_exit};
+    if (sigaction(SIGTERM, &sa_exit, NULL) < 0) {
+        perror("sigaction TERM");
+        exit(EXIT_FAILURE);
+    }
+    if (sigaction(SIGINT, &sa_exit, NULL) < 0) {
+        perror("sigaction INT");
         exit(EXIT_FAILURE);
     }
 
@@ -509,20 +518,8 @@ main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    g_path = path;
-    g_sel_name = path;
-
-    if (signal(SIGINT, handle_exit) == SIG_ERR) {
-        perror("signal");
-        exit(EXIT_FAILURE);
-    }
-
-    if (signal(SIGTERM, handle_exit) == SIG_ERR) {
-        perror("signal");
-        exit(EXIT_FAILURE);
-    }
-
     if (!setup_terminal()) {
+        perror("setup_terminal");
         exit(EXIT_FAILURE);
     }
 
@@ -559,6 +556,11 @@ main(int argc, char **argv)
     size_t n;
 
     for (;;) {
+        if (g_quit) {
+            save_session(path, ents[sel].name);
+            exit(EXIT_SUCCESS);
+	}
+
         if (fetch_dir) {
             fetch_dir      = false;
             sel            = 0;
@@ -566,8 +568,6 @@ main(int argc, char **argv)
             n              = read_dir(path, &ents, &ents_size, show_hidden);
             g_needs_redraw = true;
         }
-
-        g_sel_name = ents[sel].name;
 
         if (g_needs_redraw) {
             g_needs_redraw     = false;
