@@ -429,6 +429,7 @@ handle_exit(int sig)
 int
 main(int argc, char **argv)
 {
+    g_quit = 0;
     if (!(isatty(STDIN_FILENO) && isatty(STDOUT_FILENO))) {
         fprintf(stderr, "isatty: not connected to a tty");
         exit(EXIT_FAILURE);
