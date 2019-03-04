@@ -44,7 +44,15 @@ static struct termios g_old_termios;
 static int g_row;
 static int g_col;
 static bool g_needs_redraw;
-static volatile sig_atomic_t g_quit;
+static volatile sig_atomic_t g_quit = 0;
+static volatile int g_sig_error     = 0;
+
+static void handle_winch(int);
+static void handle_exit(int);
+
+static const struct sigaction SA_IGNORE = {.sa_handler = SIG_IGN};
+static const struct sigaction SA_WINCH  = {.sa_handler = handle_winch};
+static const struct sigaction SA_EXIT   = {.sa_handler = handle_exit};
 
 /**
  * Deletes a file. Can be passed to nftw
@@ -115,10 +123,13 @@ get_term_size(void)
 static void
 handle_winch(int sig)
 {
-    signal(sig, SIG_IGN);
+    g_sig_error = sigaction(sig, &SA_IGNORE, NULL);
+    if (g_sig_error < 0) {
+        return;
+    }
     get_term_size();
     g_needs_redraw = true;
-    signal(sig, handle_winch);
+    g_sig_error    = sigaction(sig, &SA_WINCH, NULL);
 }
 
 /**
@@ -429,7 +440,6 @@ getkey(void)
 int
 main(int argc, char **argv)
 {
-    g_quit = 0;
     if (!(isatty(STDIN_FILENO) && isatty(STDOUT_FILENO))) {
         fprintf(stderr, "isatty: not connected to a tty");
         exit(EXIT_FAILURE);
@@ -498,18 +508,16 @@ main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    struct sigaction sa_winch = {.sa_handler = handle_winch};
-    if (sigaction(SIGWINCH, &sa_winch, NULL) < 0) {
+    if (sigaction(SIGWINCH, &SA_WINCH, NULL) < 0) {
         perror("sigaction WINCH");
         exit(EXIT_FAILURE);
     }
 
-    struct sigaction sa_exit = {.sa_handler = handle_exit};
-    if (sigaction(SIGTERM, &sa_exit, NULL) < 0) {
+    if (sigaction(SIGTERM, &SA_EXIT, NULL) < 0) {
         perror("sigaction TERM");
         exit(EXIT_FAILURE);
     }
-    if (sigaction(SIGINT, &sa_exit, NULL) < 0) {
+    if (sigaction(SIGINT, &SA_EXIT, NULL) < 0) {
         perror("sigaction INT");
         exit(EXIT_FAILURE);
     }
@@ -555,6 +563,10 @@ main(int argc, char **argv)
     size_t n;
 
     for (;;) {
+        if (g_sig_error < 0) {
+            perror("signal");
+            exit(EXIT_FAILURE);
+        }
         if (g_quit) {
             save_session(path, ents[sel].name);
             exit(EXIT_SUCCESS);
