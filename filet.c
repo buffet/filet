@@ -43,8 +43,8 @@ struct direlement {
 static struct termios g_old_termios;
 static int g_row;
 static int g_col;
-static bool g_needs_redraw;
-static volatile sig_atomic_t g_quit;
+static volatile sig_atomic_t g_needs_redraw = false;
+static volatile sig_atomic_t g_quit         = false;
 
 /**
  * Deletes a file. Can be passed to nftw
@@ -115,10 +115,7 @@ get_term_size(void)
 static void
 handle_winch(int sig)
 {
-    signal(sig, SIG_IGN);
-    get_term_size();
     g_needs_redraw = true;
-    signal(sig, handle_winch);
 }
 
 /**
@@ -127,7 +124,7 @@ handle_winch(int sig)
 static void
 handle_exit(int sig)
 {
-    g_quit = 1;
+    g_quit = true;
 }
 
 /**
@@ -429,7 +426,6 @@ getkey(void)
 int
 main(int argc, char **argv)
 {
-    g_quit = 0;
     if (!(isatty(STDIN_FILENO) && isatty(STDOUT_FILENO))) {
         fprintf(stderr, "isatty: not connected to a tty");
         exit(EXIT_FAILURE);
@@ -569,7 +565,8 @@ main(int argc, char **argv)
         }
 
         if (g_needs_redraw) {
-            g_needs_redraw     = false;
+            g_needs_redraw = false;
+            get_term_size();
             size_t scroll_size = g_row - 3;
 
             int empty_space = -(n - (sel - y + scroll_size));
