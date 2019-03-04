@@ -5,12 +5,12 @@
  * You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
+#include <signal.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <signal.h>
 
 #include <dirent.h>
 #include <fcntl.h>
@@ -122,22 +122,31 @@ handle_winch(int sig)
 }
 
 /**
+ * Used for SIGINT and SIGTERM to pass the exit signal to main()
+ */
+static void
+handle_exit(int sig)
+{
+    g_quit = 1;
+}
+
+/**
  * Saves the current session (current path and selected file)
  * to /tmp/filet_dir and /tmp/filet_sel
  */
 static void
-save_session(char * path, char * sel_name)
+save_session(const char *path, const char *sel_name)
 {
     FILE *f = fopen("/tmp/filet_dir", "w");
     if (f) {
         fprintf(f, "%s\n", path);
+        fclose(f);
     }
-    fclose(f);
     f = fopen("/tmp/filet_sel", "w");
     if (f) {
         fprintf(f, "%s/%s\n", path, sel_name);
+        fclose(f);
     }
-    fclose(f);
 }
 
 /**
@@ -162,8 +171,8 @@ restore_terminal(void)
  * Saves old terminal configuration to reset on SIGINT or SIGTERM
  * restore_terminal will use this to restore the settings.
  */
-static bool 
-save_terminal()
+static bool
+get_termios(void)
 {
     if (tcgetattr(STDIN_FILENO, &g_old_termios) < 0) {
         perror("tcgetattr");
@@ -417,15 +426,6 @@ getkey(void)
     return c;
 }
 
-/**
- * Used for SIGINT and SIGTERM to pass the exit signal to main()
- */
-static void
-handle_exit(int sig)
-{
-    g_quit = 1;
-}
-
 int
 main(int argc, char **argv)
 {
@@ -514,8 +514,7 @@ main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    if (!save_terminal()) {
-        perror("save_terminal");
+    if (!get_termios()) {
         exit(EXIT_FAILURE);
     }
 
@@ -560,7 +559,7 @@ main(int argc, char **argv)
         if (g_quit) {
             save_session(path, ents[sel].name);
             exit(EXIT_SUCCESS);
-	}
+        }
 
         if (fetch_dir) {
             fetch_dir      = false;
@@ -611,17 +610,7 @@ main(int argc, char **argv)
             fetch_dir = true;
             break;
         case 's': {
-            FILE *f = fopen("/tmp/filet_dir", "w");
-            if (f) {
-                fprintf(f, "%s\n", path);
-                fclose(f);
-            }
-
-            f = fopen("/tmp/filet_sel", "w");
-            if (f) {
-                fprintf(f, "%s/%s\n", path, ents[sel].name);
-                fclose(f);
-            }
+            save_session(path, ents[sel].name);
             spawn(path, shell, NULL);
             fetch_dir = true;
             break;
