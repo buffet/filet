@@ -9,11 +9,6 @@ matrix:
   - compiler: gcc
     script:
       - make
-  - script:
+  - compiler: clang
+    script:
       - clang-format -i filet.c && git diff --exit-code
-    addons:
-      sources:
-        - ubuntu-toolchain-r-test
-      apt:
-        packages:
-          - clang-format
