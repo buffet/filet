@@ -11,5 +11,5 @@ matrix:
       - make
   - compiler: clang
     script:
-      - sed -i '27d' .clang-format
+      - sed -i 'g/IndentPPDirectives|IncludeBlocks/d' .clang-format
       - clang-format -i filet.c && git diff --exit-code
