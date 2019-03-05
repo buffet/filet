@@ -11,4 +11,5 @@ matrix:
       - make
   - compiler: clang
     script:
+      - sed -i '27d'
       - clang-format -i filet.c && git diff --exit-code
