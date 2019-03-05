@@ -1,6 +1,11 @@
 language: c
 os: linux
 
+addons:
+  apt:
+    packages:
+      - clang-format
+
 matrix:
   include:
   - compiler: clang
@@ -9,3 +14,5 @@ matrix:
   - compiler: gcc
     script:
       - make
+  - script:
+      - clang-format -i filet.c && git diff --exit-code
