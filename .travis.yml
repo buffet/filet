@@ -2,6 +2,7 @@ language: c
 os: linux
 
 matrix:
+  include:
   - compiler: gcc
     script:
       - make
