@@ -49,7 +49,7 @@ static volatile sig_atomic_t g_quit         = false;
  */
 static int
 delete_file(
-    const char *fpath,
+    const char* fpath,
     const struct stat *sb,
     int typeflag,
     struct FTW *ftwbuf)
