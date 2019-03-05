@@ -3,6 +3,8 @@ os: linux
 
 matrix:
   include:
-  - compiler: gcc
+  - compiler:
+    - clang
+    - gcc
     script:
       - make
