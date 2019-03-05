@@ -1,6 +1,5 @@
 language: c
 os: linux
-distro: xenial
 
 matrix:
   include:
@@ -13,6 +12,8 @@ matrix:
   - script:
       - clang-format -i filet.c && git diff --exit-code
     addons:
+      sources:
+        - ubuntu-toolchain-r-test
       apt:
         packages:
           - clang-format
