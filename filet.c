@@ -460,33 +460,36 @@ redraw(
 static int
 getkey(void)
 {
-    int c = getchar();
-    if (c != '\033') {
-        return c;
+    char c[3];
+    int num_read = read(STDIN_FILENO, c, sizeof(c));
+    if (num_read <= 0) {
+        return -1;
     }
 
-    c = getchar();
-    if (c != '[') {
-        return c;
+    if (num_read < 3) {
+        return c[0];
     }
 
-    c = getchar();
-    switch (c) {
+    if (c[0] != '\033') {
+        return c[0];
+    }
+
+    if (c[1] != '[') {
+        return c[1];
+    }
+
+    switch (c[2]) {
     case 'A':
         return 'k';
-        break;
     case 'B':
         return 'j';
-        break;
     case 'C':
         return 'l';
-        break;
     case 'D':
         return 'h';
-        break;
+    default:
+        return -1; // unknown escape escape sequence
     }
-
-    return c;
 }
 
 int
