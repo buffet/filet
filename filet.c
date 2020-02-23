@@ -100,15 +100,15 @@ strnatcmp(const char *s1, const char *s2)
             return 1;
         }
 
-        if (!(isdigit(*s1) && isdigit(*s2))) {
+        if (!(isdigit((int)*s1) && isdigit((int)*s2))) {
             if (*s1 != *s2) {
                 return (int)*s1 - (int)*s2;
             }
             ++s1;
             ++s2;
         } else {
-            const char *lim1;
-            const char *lim2;
+            char *lim1;
+            char *lim2;
             unsigned long n1 = strtoul(s1, &lim1, 10);
             unsigned long n2 = strtoul(s2, &lim2, 10);
             if (n1 > n2) {
