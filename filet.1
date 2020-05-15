@@ -1,69 +1,70 @@
-.TH FILET 1 "2019 March 03" "" ""
-
+.TH FILET 1 "May 15, 2020"
+.
 .SH NAME
 filet \- fucking fucking fast file fucker
-
+.
 .SH SYNOPSIS
-.B filet
-.RI [ DIR ]
-
+\fBfilet\fP [\fIdirectory\fP]
+.
 .SH DESCRIPTION
-filet is a blazingly fast, lightweight file manager, with a focus on a clear and easy to understand code base.
-filet writes the directory you quit in into \fI/tmp/filet_dir\fR.
-filet writes the file you quit on into \fI/tmp/filet_sel\fR.
-
-.P
-\fIFILET_DEPTH\fR is used to indicate how many of filet's shells you're in right now.
-
+\fBfilet\fP is a blazingly fast, lightweight file manager, with a focus on a
+clear and easy to understand code base.
+\fBfilet\fP writes the directory you quit in into \fI/tmp/filet_dir\fP.
+\fBfilet\fP writes the file you quit on into \fI/tmp/filet_sel\fP.
+.
+.PP
+\fIFILET_DEPTH\fR is used to indicate how many of \fBfilet\fP's shells you're
+in right now.
+.
 .SH USAGE
 .TP
-j k
+\fBj k\fP
 Move up/down
-
+.
 .TP
-h l
+\fBh l\fP
 Leave/enter directory
-
+.
 .TP
-l RET
+\fBl RET\fP
 Open file using \fIFILET_OPENER\fR
-
+.
 .TP
-~ /
+\fB~ /\fP
 Move to home/root
-
+.
 .TP
-\&.
+\fB\&.\fP
 Toggle visibility of dotfiles
-
+.
 .TP
-r
+\fBr\fP
 Reload dir
-
+.
 .TP
-g G
+\fBg G\fP
 Go to top/bottom
-
+.
 .TP
-e
+\fBe\fP
 Edit using \fIEDITOR\fR
-
+.
 .TP
-s
+\fBs\fP
 Spawn a \fISHELL\fR
-
+.
 .TP
-m
+\fBm\fP
 Mark an item as selected
-
+.
 .TP
-x
+\fBx\fP
 Delete current selection
-
+.
 .TP
-q
+\fBq\fP
 Quit
-
+.
 .SH AUTHOR
 Niclas Meyer <niclas at countingsort.com>.
 For more information see https://github.com/buffet/filet.
