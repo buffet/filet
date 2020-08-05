@@ -73,6 +73,7 @@ To install it you can use `make install`.
 | r   | Reload directory                  |
 | e   | Edit with $EDITOR                 |
 | s   | Spawn $SHELL in current directory |
-| m   | Mark item as selected             |
+| m   | Toggle item as selected           |
 | x   | Delete selected items             |
+| u   | Unmark all selected items         |
 | q   | Quit                              |
