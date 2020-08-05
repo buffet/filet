@@ -774,6 +774,13 @@ main(int argc, char **argv)
             draw_line(&ents[sel], true);
             printf("\r");
             break;
+        case 'u':
+            for (size_t c = 0; c < n; c++) {
+                if (ents[c].is_selected)
+                    ents[c].is_selected = false;
+            }
+            g_needs_redraw = true;
+            break;
         case 'x': {
             int fd = open(path, 0);
             if (fd < 0) {
