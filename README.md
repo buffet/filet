@@ -60,19 +60,19 @@ To install it you can use `make install`.
 
 ## Keybinds
 
-| Key | Function                          |
-|-----|-----------------------------------|
-| j/k | Move up/down                      |
-| h   | Leave directory                   |
-| l   | Enter directory/open file         |
-| ~   | Move to home                      |
-| /   | Move to root                      |
-| .   | Toggle dotfile visibility         |
-| g   | Select first item                 |
-| G   | Select last item                  |
-| r   | Reload directory                  |
-| e   | Edit with $EDITOR                 |
-| s   | Spawn $SHELL in current directory |
-| m   | Mark item as selected             |
-| x   | Delete selected items             |
-| q   | Quit                              |
+| Key | Function                              |
+|-----|---------------------------------------|
+| j/k | Move up/down                          |
+| h   | Leave directory                       |
+| l   | Enter directory/open file             |
+| ~   | Move to home                          |
+| /   | Move to root                          |
+| .   | Toggle dotfile visibility             |
+| g   | Select first item                     |
+| G   | Select last item                      |
+| r   | Reload directory                      |
+| e   | Edit with $EDITOR                     |
+| s   | Spawn $SHELL in current directory     |
+| Space   | Mark item as selected             |
+| x   | Delete selected items                 |
+| q   | Quit                                  |

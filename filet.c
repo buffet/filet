@@ -769,7 +769,7 @@ main(int argc, char **argv)
             spawn(path, editor, ents[sel].name, row);
             fetch_dir = true;
             break;
-        case 'm':
+        case ' ':
             ents[sel].is_selected = !ents[sel].is_selected;
             draw_line(&ents[sel], true);
             printf("\r");
