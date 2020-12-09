@@ -626,12 +626,12 @@ main(int argc, char **argv)
             user_and_hostname, user_and_host_size, "\033[32;1m%s\033[m:", user);
     }
 
-    bool show_hidden = false;
-    bool fetch_dir   = true;
+    bool show_hidden     = false;
+    bool fetch_dir       = true;
     bool sel_curr_in_par = false;
     char curr_dir_name[NAME_MAX + 1];
-    size_t sel       = 0;
-    size_t y         = 0;
+    size_t sel = 0;
+    size_t y   = 0;
     size_t n;
 
     for (;;) {
@@ -684,7 +684,7 @@ main(int argc, char **argv)
             strcpy(curr_dir_name, get_current_dir_name(path));
             parent_dir(path);
             sel_curr_in_par = true;
-            fetch_dir = true;
+            fetch_dir       = true;
             break;
         case '~':
             strcpy(path, home);
