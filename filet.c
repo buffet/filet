@@ -381,6 +381,23 @@ parent_dir(char *path)
 }
 
 /**
+ * Gets the current dir name of a given path (without trailing /) and returns it, meant to be used as src for strcpy()
+ */
+static char *
+get_current_dir_name(char *path)
+{
+    if (path[1] != '\0') {
+        char *start = strrchr(path, '/');
+        ++start;
+        if (path == start) {
+            ++start;
+        }
+        return start;
+    }
+    return path;
+}
+
+/**
  * Draws a single directory entry in it's own line
  *
  * Assumes the cursor is at the beginning of the line
@@ -611,6 +628,8 @@ main(int argc, char **argv)
 
     bool show_hidden = false;
     bool fetch_dir   = true;
+    bool sel_curr_in_par = false;
+    char curr_dir_name[NAME_MAX + 1];
     size_t sel       = 0;
     size_t y         = 0;
     size_t n;
@@ -623,10 +642,20 @@ main(int argc, char **argv)
 
         if (fetch_dir) {
             fetch_dir      = false;
-            sel            = 0;
             y              = 0;
             n              = read_dir(path, &ents, &ents_size, show_hidden);
             g_needs_redraw = true;
+
+            if (sel_curr_in_par) {
+                sel_curr_in_par = false;
+                for (size_t i = 0; i < n; i++) {
+                    if (strcmp(ents[i].name, curr_dir_name) == 0) {
+                        sel = i;
+                    }
+                }
+            } else {
+                sel = 0;
+            }
         }
 
         if (g_needs_redraw) {
@@ -652,7 +681,9 @@ main(int argc, char **argv)
 
         switch (k) {
         case 'h':
+            strcpy(curr_dir_name, get_current_dir_name(path));
             parent_dir(path);
+            sel_curr_in_par = true;
             fetch_dir = true;
             break;
         case '~':
